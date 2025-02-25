@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>1</h1>
+    <a href="/add_dealer"><button class="button_add_goods">Добавить dealer</button></a>
+  <body>
+    <div class="frame-1">
+        <form method="post" action="/show_dealers">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Наименование</th>
+                    <th>Adres</th>
+                    <th>E-mail</th>
+                    <th>Phone</th>
+                </tr>
+                </thead>
+            <tbody>
+            {% for el in dealers %}
+            <tr>
+                <td><a href="/edit_dealer/{{ el.id }}">{{ el.name }}</a></td>
+                <td>{{ el.adres }}</td>
+                <td>{{ el.e_mail }}</td>
+                <td>{{ el.phone }}</td>
+                <td>
+                    <input type="checkbox" name="ids" value="{{ el.id }}">
+                </td>
+              </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+            <button class="button_delete" type="submit">Delete</button>
+        </form>
+    </div>
+  </body>
+{% endblock %}

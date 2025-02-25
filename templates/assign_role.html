@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Назначение ролей пользователю {{ user.username }}</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    {{ form.roles.label }} {{ form.roles(multiple=True) }}<br>
+    {{ form.submit() }}
+</form>
+{% endblock %}

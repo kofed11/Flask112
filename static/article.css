@@ -1,0 +1,182 @@
+.frame-1,
+.frame-1 * {
+  box-sizing: border-box;
+}
+.type_form_a {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 0px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 640px;
+  top: 60px;
+}
+.type_form_old {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 0px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 330px;
+  top: 60px;
+}
+.article_form_a {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 640px;
+  top: 120px;
+}
+.article_form_old {
+  border-radius: 5px;
+  background: #ffffff;
+  width: 295px;
+  height: 35px;
+  position: absolute;
+  left: 330px;
+  top: 120px;
+}
+.name_form_a {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 640px;
+  top: 165px;
+}
+.name_form_old {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 330px;
+  top: 165px;
+}
+.dealer_form_a {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 640px;
+  top: 210px;
+}
+.price_form_a {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 640px;
+  top: 255px;
+}
+.restaurant_form_a {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 640px;
+  top: 300px;
+}
+.second_dealer_a {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 640px;
+  top: 345px;
+}
+.second_price_a {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 2px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 640px;
+  top: 390px;
+ }
+ .send_button_a {
+  border-radius: 5px;
+  background: #ec7e19;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 2x;
+  width: 295px;
+  height: 30px;
+  position: absolute;
+  left: 640px;
+  top: 435px;
+}
+.reset_button_a {
+  border-radius: 5px;
+  background: #ec7e19;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 2px;
+  width: 295px;
+  height: 30px;
+  position: absolute;
+  left: 640px;
+  top: 475px;
+}
+.old_numbers {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
+  width: 500px;
+  height: 475px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 50px;
+  top: 120px;
+}
+
+    strSQl= "update articles set article='"+article+"', name='"+name+"',dealer='"+dealer+"', " where id="+str(id)

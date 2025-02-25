@@ -1,0 +1,30 @@
+
+{% extends "base.html" %}
+{% block content %}
+<h1>Все товары</h1>
+  <body>
+    <div class="frame-1">
+        <form method="get" action="/show_users">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Имя пользователя</th>
+                    <th>Почта</th>
+                    <th>Role</th>
+                </tr>
+                </thead>
+            {% for el in user2 %}
+            <tbody>
+            <tr>
+                <td><a href="{{ url_for('assign_role', user_id=el.id) }}">{{ el.username }}</a></td>
+                <td>{{ el.email }}</td>
+                <td>{{ el.role_name }}</td>
+            </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+        </form>
+    </div>
+  </body>
+{% endblock %}
+</html>

@@ -1,0 +1,146 @@
+/* Общий контейнер для уведомлений */
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Стиль уведомления */
+.alert {
+    position: relative;    /* Нужно для позиционирования кнопки и полосы */
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 14px;
+    min-width: 250px;
+    max-width: 300px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0.95;
+    transition: opacity 0.5s ease-in-out;
+    overflow: hidden;      /* Чтобы полоска прогресса не выходила за границы */
+}
+
+/* Кнопка закрытия (крестик) */
+.close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    color: #fff;
+    transition: color 0.3s;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+
+/* Разные стили для категорий */
+.alert.success { background-color: #4CAF50; }
+.alert.error   { background-color: #F44336; }
+.alert.warning { background-color: #FF9800; }
+
+/* Скрытие уведомления */
+.alert.hide {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* Полоса прогресса */
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 100%;
+    transform-origin: left;
+    animation: progressAnimation 5s linear forwards; /* Анимация для прогресса */
+    color: white;
+}
+
+/* Анимация прогресса */
+@keyframes progressAnimation {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}
+.sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 200px; /* Ширина navbar */
+            height: 100vh;
+            background-color: #ffffff; /* Цвет фона */
+            padding-top: 20px;
+            border-radius: 5px;
+            border-color: black;
+            z-index: 1000; /* Поверх других элементов */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Выравнивание кнопок сверху */
+            gap: 20px; /* Отступы между кнопками */
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            padding-bottom: 20px;
+            transition: left 0.3s ease-in-out;
+        }
+
+        .sidebar.hidden{
+        left: -220px;
+        }
+
+        .sidebar a {
+            width: 90%;
+            text-align: center;
+        }
+
+        .sidebar button {
+            transition-duration: 0.4s;
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border-color: black;
+            background-color: #ffffff;
+            color: black;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .sidebar button:hover {
+            background-color: #ec7e19;
+        }
+
+        .menu-toggle {
+        position: absolute;
+        left: 210px;
+        top: 20px;
+        background: #ec7e19;
+        color: black;
+        border: none;
+        padding: 10px;
+        font-size: 20px;
+        cursor: pointer;
+        border-radius: 5px;
+        z-index: 1100;
+        transition: left 0.3s ease-in-out;
+        }
+
+        .sidebar.hidden + menu.toggle {
+        left: 10px
+        }
+
+        /* Добавляем отступ для контента, чтобы он не перекрывался navbar */
+        .content {
+            margin-left: 240px; /* Отступ слева, чтобы контент не налезал на navbar */
+            padding: 20px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .sidebar.hidden ~ .content {
+        margin-left: 40px;
+        }

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить restaurant{% endblock %}
+
+{% block content %}
+<div class="addgoods-container">
+    <h2>Добавить ресторан</h2>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            <label>Имя:</label>
+            {{ form.name(class="form-control", id="name") }}
+        </div>
+
+        <div class="form-group">
+            <label>Ur.name:</label>
+            {{ form.ur_name(class="form-control", id="ur_name") }}
+        </div>
+
+        <div class="form-group">
+            <label>Адрес:</label>
+            {{ form.address(class="form-control", id="address") }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Добавить ресторан</button>
+    </form>
+</div>
+{% endblock %}

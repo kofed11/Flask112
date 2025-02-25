@@ -1,0 +1,147 @@
+.frame-1,
+.frame-1 * {
+  box-sizing: border-box;
+}
+.button_dealer {
+  transition-duration: 0.4s;
+  background: #ffffff;
+  text-decoration: none;
+  border-radius: 5px;
+  width: 120px;
+  height: 30px;
+  position: absolute;
+  right: 0px;
+  left: 1100px;
+  bottom: 0px;
+  top: 20px;
+}
+.button_dealer:hover {
+ background-color: #ec7e19;
+  color: 000000;
+ }
+
+.button_goods {
+  transition-duration: 0.4s;
+  cursor: pointer;
+  color: #000000;
+  background: #ffffff;
+  text-decoration: none;
+  border-radius: 5px;
+  width: 100px;
+  height: 30px;
+  position: absolute;
+  right: 0px;
+  left: 1230px;
+  bottom: 0px;
+  top: 20px;
+ }
+ .button_goods:hover {
+ background-color: #ec7e19;
+  color: 000000;
+}
+ .button_add_goods {
+  transition-duration: 0.4s;
+  cursor: pointer;
+  color: #000000;
+  background: #ffffff;
+  text-decoration: none;
+  border-radius: 5px;
+  width: 170px;
+  height: 30px;
+  position: absolute;
+  right: 0px;
+  left: 700px;
+  bottom: 0px;
+  top: 20px;
+ }
+.button_add_goods:hover {
+ background-color: #ec7e19;
+  color: 000000;
+}
+
+.button_dashboard {
+  transition-duration: 0.4s;
+  cursor: pointer;
+  color: #000000;
+  background: #ffffff;
+  text-decoration: none;
+  border-radius: 5px;
+  width: 170px;
+  height: 30px;
+  position: absolute;
+  right: 0px;
+  left: 1340px;
+  bottom: 0px;
+  top: 20px;
+ }
+
+.button_dashboard:hover {
+ background-color: #ec7e19;
+ color: 000000;
+ }
+
+ .button_rest {
+  transition-duration: 0.4s;
+  cursor: pointer;
+  color: #000000;
+  background: #ffffff;
+  text-decoration: none;
+  border-radius: 5px;
+  width: 170px;
+  height: 30px;
+  position: absolute;
+  right: 0px;
+  left: 920px;
+  bottom: 0px;
+  top: 20px;
+ }
+
+.button_rest:hover {
+ background-color: #ec7e19;
+ color: 000000;
+ }
+
+.button_delete {
+  background: #ec7e19;
+  text-decoration: none;
+  border-radius: 5px;
+  width: 120px;
+  height: 30px;
+  position: absolute;
+  right: 0px;
+  left: 500px;
+  bottom: 0px;
+  top: 20px;
+}
+.old_numbers {
+  border-radius: 5px;
+  background: #ffffff;
+  border-style: solid;
+  border-color: #000000;
+  border-width: 1px;
+  width: 295px;
+  height: 35px;
+  padding-inline: 6px;
+  position: absolute;
+  left: 40px;
+  top: 120px;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.checkbox-label {
+    margin: 5px 0;
+    padding: 8px;
+    background-color: #ec7e19;  /* Цвет выделения */
+    color: white;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-label input {
+    margin-right: 10px;
+}

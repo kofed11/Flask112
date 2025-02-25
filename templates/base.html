@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask App</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/main.css">
+    <link rel="stylesheet" href="/static/table.css">
+    <link rel="stylesheet" href="/static/article.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='addgoods.css') }}">
+    <!-- Подключение Inputmask -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/jquery.inputmask.min.js"></script>
+</head>
+
+<body>
+    <!-- Navbar слева -->
+    <div class="sidebar" id="sidebar">
+
+        <a href="/show_dealers"><button class="button">Поставщики</button></a>
+        <a href="/show_goods"><button class="button">Товары</button></a>
+        <a href="/dashboard"><button class="button">Панель админа</button></a>
+        <a href="/add_restaurant"><button class="button">Добавить Ресторан</button></a>
+    </div>
+
+<!-- Кнопка для скрытия/открытия меню -->
+    <button class="menu-toggle" id="menuToggle">☰</button>
+
+    <!-- Основной контент -->
+    <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div id="flash-messages" class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">
+                            <span class="close-btn">&times;</span>
+                            <div class="message-content">{{ message }}</div>
+                            <div class="progress-bar"></div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+
+            // Проверяем, скрыто ли меню, и меняем положение кнопки
+            if (sidebar.classList.contains('hidden')) {
+                menuToggle.style.left = "10px"; // Сдвигаем кнопку влево
+            } else {
+                menuToggle.style.left = "210px"; // Возвращаем кнопку обратно
+            }
+        });
+
+        const alerts = document.querySelectorAll('.alert');
+
+        alerts.forEach(alert => {
+            const closeBtn = alert.querySelector('.close-btn');
+            const progressBar = alert.querySelector('.progress-bar');
+
+            const autoHideTimer = setTimeout(() => {
+                hideAlert(alert);
+            }, 5000);
+
+            closeBtn.addEventListener('click', () => {
+                clearTimeout(autoHideTimer);
+                hideAlert(alert);
+            });
+
+            function hideAlert(element) {
+                element.classList.add('hide');
+                setTimeout(() => element.remove(), 500);
+            }
+        });
+    });
+</script>
+</body>
+</html>

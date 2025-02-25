@@ -1,0 +1,41 @@
+
+{% extends "base.html" %}
+{% block content %}
+<h1>Все товары</h1>
+    <a href="/add_good"><button class="button_add_goods">Добавить article</button></a>
+  <body>
+    <div class="frame-1">
+        <form method="post" action="/show_goods">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Наименование</th>
+                    <th>Price</th>
+                    <th>Type</th>
+                    <th>Dealer</th>
+                    <th>Second Dealer</th>
+                    <th>Second Price</th>
+                </tr>
+                </thead>
+            <tbody>
+            {% for el in articles %}
+            <tr>
+                <td><a href="/update_good/{{ el.id }}">{{ el.name }}</a></td>
+                <td>{{ el.price }}</td>
+                <td>{{ el.type }}</td>
+                <td>{{ el.dealer }}</td>
+                <td>{{ el.second_dealer }}</td>
+                <td>{{ el.second_price }}</td>
+                <td>
+                    <input type="checkbox" name="ids" value="{{ el.id }}">
+                </td>
+              </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+            <button class="button_delete" type="submit">Delete</button>
+        </form>
+    </div>
+  </body>
+{% endblock %}
+</html>

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Панель управления{% endblock %}
+
+{% block content %}
+<h2>Добро пожаловать, {{ current_user.username }}!</h2>
+
+<p>Вы вошли как:
+    {% if current_user.roles %}
+        {% for role in current_user.roles %}
+            <strong>{{ role.name }}</strong>
+        {% endfor %}
+    {% else %}
+        <strong>Пользователь без ролей</strong>
+    {% endif %}
+</p>
+
+{% if current_user.has_role('admin') %}
+    <p><a href="{{ url_for('manage_roles') }}">Управление ролями</a></p>
+    <p><a href="{{ url_for('show_users') }}">Управление доступами</a></p>
+{% endif %}
+
+<p><a href="{{ url_for('logout') }}">Выйти</a></p>
+{% endblock %}

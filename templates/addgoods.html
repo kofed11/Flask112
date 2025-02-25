@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Добавить товар{% endblock %}
+{% block content %}
+<div class="addgoods-container">
+    <h2>Добавить товар</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            <label>Артикул:</label>
+            {{ form.article(class="form-control", id="article") }}
+        </div>
+        <div class="form-group">
+            <label>Название:</label>
+            {{ form.name(class="form-control", id="name") }}
+        </div>
+        <div class="form-group">
+            <label>Дилер:</label>
+            {{ form.dealer(class="form-control", id="dealer") }}
+        </div>
+        <div class="form-group">
+            <label>Тип:</label>
+            {{ form.type(class="form-control", id="type") }}
+        </div>
+        <div class="form-group">
+            <label>Цена:</label>
+            {{ form.price(class="form-control", id="price") }}
+        </div>
+        <div class="form-group">
+            <label>Рестораны:</label>
+            {% for restaurant in Restaurants.query.all() %}
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="restaurants" value="{{ restaurant.id }}" id="restaurant-{{ restaurant.id }}">
+                    <label class="form-check-label" for="restaurant-{{ restaurant.id }}">{{ restaurant.name }}</label>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            <label>Кратность:</label>
+            {{ form.multiplicity(class="form-control", id="price") }}
+        </div>
+        <div class="form-group">
+            <label>Единица измерения:</label>
+            {{ form.unit(class="form-control", id="price") }}
+        </div>
+        <div class="form-group">
+            <label>Второй дилер (необязательно):</label>
+            {{ form.second_dealer(class="form-control", id="second_dealer") }}
+        </div>
+        <div class="form-group">
+            <label>Вторая цена (необязательно):</label>
+            {{ form.second_price(class="form-control", id="second_price") }}
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить товар</button>
+    </form>
+</div>
+{% endblock %}
