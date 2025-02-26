@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/flask'
@@ -31,6 +32,7 @@ class User2(UserMixin, db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('role2.id'), nullable=True)
     role_name = db.Column(db.String(256), nullable=True)
     roles = db.relationship('Role2', secondary=user_roles, back_populates='users')
+    orders = db.relationship('Orders', backref='user', lazy=True, foreign_keys='Orders.user_id')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -92,6 +94,24 @@ class Dealers(db.Model):
     e_mail = db.Column(db.String, unique=True, nullable=True)
     phone = db.Column(db.String, unique=True, nullable=True)
     articles = db.relationship('Articles', secondary=dealer_articles, back_populates='dealers')
+
+
+class Orders(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow())
+    user_id = db.Column(db.Integer, db.ForeignKey('user2.id'), nullable=True)
+    goods = db.relationship('OrderGoods', backref='order', lazy=True, cascade="all, delete-orphan")
+    is_sent = db.Column(db.Boolean, default=False)
+    dealer_id = db.Column(db.Integer, db.ForeignKey('dealers.id'), nullable=True)
+    dealer = db.relationship('Dealers', backref='orders')
+
+class OrderGoods(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=True)
+    quantity = db.Column(db.Integer, nullable=False)
+    article = db.relationship('Articles')
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'), nullable=True)
+
 
 
 with app.app_context():

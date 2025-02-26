@@ -1,8 +1,8 @@
 import psycopg2
 from flask import Flask, render_template, request, flash, redirect, url_for
-from config import Articles, db, User2, Role2, Dealers, Restaurants
+from config import Articles, db, User2, Role2, Dealers, Restaurants, Orders, OrderGoods
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from forms import RegistrationForm, RoleForm, AssignRoleForm, AddGoodForm, AddDealerForm, RestaurantsNew
+from forms import RegistrationForm, RoleForm, AssignRoleForm, AddGoodForm, AddDealerForm, RestaurantsNew, OrderGoodsForm, OrderForm
 from flask_migrate import Migrate
 
 app = Flask(__name__)
@@ -297,8 +297,7 @@ def delete_dealer():
     ids = request.form.getlist('ids')
     if ids:
         ids_tuple = tuple(map(int, ids))
-        query = (f"DELETE FROM dealer_articles WHERE dealer_id IN %s"
-                 f"DELETE FROM dealers WHERE id IN %s")
+        query = "DELETE FROM dealers WHERE id IN %s"
         with conn:
             with conn.cursor() as curs:
                 curs.execute(query, (ids_tuple,))
@@ -357,16 +356,87 @@ def update_goods(id):
 def edit_dealer(dealer_id):
     dealer = Dealers.query.get_or_404(dealer_id)
     form = AddDealerForm(obj=dealer)
-
     if form.validate_on_submit():
-        dealer.name = form.name.data
-        dealer.adres = form.adres.data
-        dealer.e_mail = form.e_mail.data
-        dealer.phone = form.phone.data
-        db.session.commit()
-        flash("Dealer edit successfuly", "success")
-        return redirect(url_for("show_dealers"))
+        old_name = dealer.name  # Старое имя дилера
+        new_name = form.name.data  # Новое имя
+
+        try:
+            with db.session.begin_nested():  # Используем вложенную транзакцию
+                # 1️⃣ Сначала обновляем dealerName в articles
+                db.session.execute("UPDATE articles SET dealer = :new_name WHERE dealer = :old_name", {"new_name": new_name, "old_name": old_name})
+
+                # 2️⃣ Теперь обновляем имя в таблице dealers
+                dealer.name = new_name
+                dealer.adres = form.adres.data
+                dealer.e_mail = form.e_mail.data
+                dealer.phone = form.phone.data
+
+            db.session.commit()  # Фиксируем транзакцию
+            flash("Dealer edited successfully", "success")
+            return redirect(url_for("show_dealers"))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Ошибка: {e}", "error")
+
     return render_template("edit_dealer.html", form=form, dealer=dealer)
+
+
+@app.route('/create_order', methods=['GET', 'POST'])
+@login_required
+def create_order():
+    articles = Articles.query.all()
+
+    if request.method == 'POST':
+        selected_items = []
+        for article in articles:
+            quantity = request.form.get(f'quantity_{article.id}')
+            if quantity and int(quantity) > 0:
+                selected_items.append((article.id, int(quantity)))
+
+        if not selected_items:
+            flash("Выберите хотя бы один товар!", "warning")
+            return redirect(url_for('create_order'))
+
+        # Создаем заказ (еще не отправляем)
+        new_order = Orders(user_id=current_user.id, is_sent=False)
+        db.session.add(new_order)
+        db.session.commit()
+
+        # Добавляем товары в заказ
+        for article_id, quantity in selected_items:
+            order_item = OrderGoods(order_id=new_order.id, article_id=article_id, quantity=quantity)
+            db.session.add(order_item)
+
+        db.session.commit()
+
+        flash("Заказ сформирован! Теперь его можно просмотреть и отправить.", "success")
+        return redirect(url_for('orders', order_id=new_order.id))
+
+    return render_template('create_order.html', articles=articles)
+
+@app.route('/order/<int:order_id>')
+@login_required
+def view_order(order_id):
+    order = Orders.query.get_or_404(order_id)
+
+    # Группируем товары по поставщикам
+    dealers = {}
+    for good in order.goods:
+        dealer_id = good.article.dealer
+        if dealer_id not in dealers:
+            dealers[dealer_id] = {'total': 0, 'items': []}
+        dealers[dealer_id]['items'].append(good)
+        dealers[dealer_id]['total'] += good.article.price * good.quantity
+
+    return render_template('view_order.html', order=order, dealers=dealers)
+
+
+@app.route('/orders')
+def orders():
+    ordersall = Orders.query.all()
+    return render_template('orders.html', ordersall=ordersall)
+
 
 
 if __name__ == "__main__":

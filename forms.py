@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField, FloatField, BooleanField, FieldList, FormField, IntegerField
 from wtforms.fields.choices import SelectMultipleField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, Regexp
+from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, Regexp, NumberRange
 from wtforms_sqlalchemy.fields import QuerySelectMultipleField
-from config import Restaurants
+from config import Restaurants, Articles
 from flask import current_app
 
 class RegistrationForm(FlaskForm):
@@ -51,3 +51,11 @@ class RestaurantsNew(FlaskForm):
     name = StringField("Ресторан", validators=[DataRequired(), Length(max=256)])
     ur_name = StringField("Юр. лицо", validators=[DataRequired(), Length(max=256)])
     address = StringField("Адрес", validators=[DataRequired(), Length(max=256)])
+
+class OrderGoodsForm(FlaskForm):
+    article_id = IntegerField("ID товара", validators=[DataRequired()])
+    quantity = IntegerField("Количество", validators=[DataRequired(), NumberRange(min=1)])
+
+class OrderForm(FlaskForm):
+    goods = FieldList(FormField(OrderGoodsForm), min_entries=1)  # Позволяет выбрать несколько товаров
+    submit = SubmitField("Сформировать заказ")

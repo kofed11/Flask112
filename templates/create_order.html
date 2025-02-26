@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Выбор товаров{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Выберите товары для заказа</h2>
+
+    <form method="POST">
+        {% for article in articles %}
+            <div class="form-group">
+                <input type="checkbox" name="article_{{ article.id }}">
+                <label>{{ article.name }} ({{ article.price }} руб.)</label>
+                <input type="number" name="quantity_{{ article.id }}" min="1" value="1">
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-success">Сформировать заказ</button>
+    </form>
+</div>
+{% endblock %}
