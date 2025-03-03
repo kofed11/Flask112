@@ -6,16 +6,18 @@
 <div class="container">
     <h2>Заказ №{{ order.id }}</h2>
 
-    {% for dealer, data in dealers.goods %}
-        <h4>Поставщик: {{ dealer }}</h4>
+    {% for dealer in dealers.values() %}
+        <h4>Поставщик: {{ dealer.dealer_name }}</h4>
         <ul>
-            {% for good in data.Goods %}
-                <li>{{ good.article.name }} — {{ good.quantity }} шт. ({{ good.article.price * good.quantity }} руб.)</li>
+            {% for good in dealer.goods %}
+                <li>
+                    {{ good.article_name }} — {{ good.quantity }} {{ good.unit }}
+                    (Кратность: {{ good.multiplicity }}) —
+                    {{ good.total_price }} руб.
+                </li>
             {% endfor %}
         </ul>
-        <p><strong>Итого: {{data.total}} руб.</strong></p>
+        <p><strong>Итого: {{ dealer.total }} руб.</strong></p>
     {% endfor %}
-
-    <a href="{{ url_for('view_order', order_id=order.id) }}" class="btn btn-primary">Отправить заказ</a>
 </div>
 {% endblock %}

@@ -1,0 +1,66 @@
+Index: app.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app.py b/app.py
+--- a/app.py	
++++ b/app.py	(date 1740951728666)
+@@ -225,7 +225,7 @@
+         new_good = Articles(
+             article=form.article.data,
+             name=form.name.data,
+-            dealer=Dealers.query.get(form.dealer.data).name,  # Сохраняем имя дилера
++            dealer_id=Dealers.query.get(form.dealer.data).id,  # Сохраняем имя дилера
+             type=form.type.data,
+             price=form.price.data,
+             multiplicity=form.multiplicity.data,
+@@ -423,14 +423,7 @@
+     order = Orders.query.get_or_404(order_id)
+ 
+     # Группируем товары по дилерам
+-    dealers = {}
+-    for item in OrderGoods.query.filter_by(order_id=order.id).all():  # Загружаем только товары этого заказа
+-        for dealer in item.article.dealers:  # Получаем дилеров для каждого артикула
+-            dealer_name = dealer.name
+-            if dealer_name not in dealers:
+-                dealers[dealer_name] = {'total': 0, 'goods': []}
+-            dealers[dealer_name]['goods'].append(item)
+-            dealers[dealer_name]['total'] += item.article.price * item.quantity
++    dealers = OrderGoods.query.filter_by(order_id=order.id).all()  # Загружаем только товары этого заказа
+ 
+     print(f"DEBUG: Заказ {order.id} содержит {len(dealers)} дилеров и {sum(len(data['goods']) for data in dealers.values())} товаров.")
+ 
+Index: templates/view_order.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/templates/view_order.html b/templates/view_order.html
+--- a/templates/view_order.html	
++++ b/templates/view_order.html	(date 1740951559857)
+@@ -7,7 +7,7 @@
+     <h2>Заказ №{{ order.id }}</h2>
+     <p>DEBUG: Заказ содержит {{ dealers|length }} дилеров</p> <!-- Для отладки -->
+ 
+-    {% for dealer, data in dealers.items() %}
++    {% for article %}
+         <h4>Дилер: {{ dealer }}</h4>
+         <ul>
+             {% for good in data.goods %}
+@@ -21,13 +21,13 @@
+                 </thead>
+                 <tbody>
+                 <tr>
+-                    <td>{{ good.article.name }} — {{ good.quantity }} шт. ({{ good.article.price * good.quantity }} руб.)</td>
++                    <td></td>
+                 </tr>
+                 </tbody>
+             </table>
+             {% endfor %}
+         </ul>
+-        <p><strong>Итого: {{ data.total }} руб.</strong></p>
++        <p><strong>Итого:  руб.</strong></p>
+     {% endfor %}
+ 
+     <a href="{{ url_for('orders') }}" class="btn btn-secondary">Назад к списку заказов</a>

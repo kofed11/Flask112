@@ -225,7 +225,7 @@ def add_good():
         new_good = Articles(
             article=form.article.data,
             name=form.name.data,
-            dealer=Dealers.query.get(form.dealer.data).name,  # Сохраняем имя дилера
+            dealer_name=Dealers.query.get(form.dealer.data).name,  # Сохраняем имя дилера
             type=form.type.data,
             price=form.price.data,
             multiplicity=form.multiplicity.data,
@@ -332,7 +332,7 @@ def update_goods(id):
             article_data = request.form
             article.article = article_data.get('article', article.article)
             article.name = article_data.get('name', article.name)
-            article.dealer = article_data.get('dealer', article.dealer)
+            article.dealer_name = article_data.get('dealer_name', article.dealer_name)
             article.type = article_data.get('type', article.type)
             article.price = float(article_data.get('price', article.price)) if article_data.get('price') else article.price
             article.multiplicity = article_data.get('multiplicity', article.multiplicity)
@@ -388,55 +388,86 @@ def create_order():
     articles = Articles.query.all()
 
     if request.method == 'POST':
-        selected_items = []
-        for article in articles:
-            quantity = request.form.get(f'quantity_{article.id}')
-            if quantity and int(quantity) > 0:
-                selected_items.append((article.id, int(quantity)))
+        selected_article_ids = request.form.getlist('selected_articles')
 
-        if not selected_items:
-            flash("Выберите хотя бы один товар!", "warning")
+        if not selected_article_ids:
+            flash("Вы не выбрали ни одного товара!", "warning")
             return redirect(url_for('create_order'))
 
-        # Создаем заказ (еще не отправляем)
-        new_order = Orders(user_id=current_user.id, is_sent=False)
+        new_order = Orders(user_id=current_user.id)
         db.session.add(new_order)
         db.session.commit()
 
-        # Добавляем товары в заказ
-        for article_id, quantity in selected_items:
-            order_item = OrderGoods(order_id=new_order.id, article_id=article_id, quantity=quantity)
-            db.session.add(order_item)
+        for article_id in selected_article_ids:
+            article = Articles.query.get(article_id)
+            quantity = request.form.get(f'quantity_{article_id}', type=int)
+
+            # Проверяем, что количество не меньше кратности
+            if quantity is None or quantity < article.multiplicity or quantity % article.multiplicity != 0:
+                flash(f"Ошибка: количество товара {article.name} должно быть кратно {article.multiplicity}!", "danger")
+                db.session.rollback()
+                return redirect(url_for('create_order'))
+
+            order_good = OrderGoods(order_id=new_order.id, article_id=article.id, quantity=quantity)
+            db.session.add(order_good)
 
         db.session.commit()
+        flash("Заказ успешно создан!", "success")
+        return redirect(url_for('orders'))
 
-        flash("Заказ сформирован! Теперь его можно просмотреть и отправить.", "success")
-        return redirect(url_for('orders', order_id=new_order.id))
+    return render_template("create_order.html", articles=articles)
 
-    return render_template('create_order.html', articles=articles)
 
 @app.route('/order/<int:order_id>')
 @login_required
 def view_order(order_id):
     order = Orders.query.get_or_404(order_id)
+    order_goods = OrderGoods.query.filter_by(order_id=order.id).all()
 
-    # Группируем товары по поставщикам
     dealers = {}
-    for good in order.goods:
-        dealer_id = good.article.dealer
-        if dealer_id not in dealers:
-            dealers[dealer_id] = {'total': 0, 'items': []}
-        dealers[dealer_id]['items'].append(good)
-        dealers[dealer_id]['total'] += good.article.price * good.quantity
 
-    return render_template('view_order.html', order=order, dealers=dealers)
+    for item in order_goods:
+        article = Articles.query.get(item.article_id)
+
+        if not article:
+            flash(f"Ошибка: Артикул с ID {item.article_id} не найден.", "danger")
+            continue  # Пропускаем отсутствующие товары
+
+        # Получаем дилера по его имени из таблицы Dealers
+        dealer = Dealers.query.filter_by(name=article.dealer_name).first()
+
+        if not dealer:
+            flash(f"Ошибка: Поставщик '{article.dealer_name}' не найден в базе.", "danger")
+            continue  # Пропускаем товары без корректного поставщика
+
+        if dealer.name not in dealers:
+            dealers[dealer.name] = {
+                "dealer_name": dealer.name,
+                "goods": [],
+                "total": 0
+            }
+
+        total_price = item.quantity * article.price
+        dealers[dealer.name]["goods"].append({
+            "article_name": article.name,
+            "quantity": item.quantity,
+            "unit": article.unit,
+            "multiplicity": article.multiplicity,
+            "total_price": total_price
+        })
+        dealers[dealer.name]["total"] += total_price
+
+    return render_template("view_order.html", order=order, dealers=dealers)
 
 
 @app.route('/orders')
+@login_required
 def orders():
-    ordersall = Orders.query.all()
-    return render_template('orders.html', ordersall=ordersall)
+    all_orders = Orders.query.order_by(Orders.created_at.desc()).all()
 
+    print(f"DEBUG: Найдено заказов: {len(all_orders)}")  # Проверяем в консоли
+
+    return render_template('orders.html', orders=all_orders)
 
 
 if __name__ == "__main__":

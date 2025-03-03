@@ -5,17 +5,36 @@
 {% block content %}
 <div class="container">
     <h2>Выберите товары для заказа</h2>
-
-    <form method="POST">
-        {% for article in articles %}
-            <div class="form-group">
-                <input type="checkbox" name="article_{{ article.id }}">
-                <label>{{ article.name }} ({{ article.price }} руб.)</label>
-                <input type="number" name="quantity_{{ article.id }}" min="1" value="1">
-            </div>
-        {% endfor %}
-
-        <button type="submit" class="btn btn-success">Сформировать заказ</button>
-    </form>
+    <form method="POST" action="{{ url_for('create_order') }}">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Выбрать</th>
+                <th>Название товара</th>
+                <th>Единица измерения</th>
+                <th>Кратность</th>
+                <th>Цена</th>
+                <th>Количество</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr>
+                <td>
+                    <input type="checkbox" name="selected_articles" value="{{ article.id }}">
+                </td>
+                <td>{{ article.name }}</td>
+                <td>{{ article.unit }}</td>
+                <td>{{ article.multiplicity }}</td>
+                <td>{{ article.price }} руб.</td>
+                <td>
+                    <input type="number" name="quantity_{{ article.id }}" min="{{ article.multiplicity }}" step="{{ article.multiplicity }}" value="{{ article.multiplicity }}">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">Сформировать заказ</button>
+</form>
 </div>
 {% endblock %}

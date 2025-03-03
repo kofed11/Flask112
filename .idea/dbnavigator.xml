@@ -55,18 +55,22 @@
     <connection id="900217a9-a7db-4c4f-b289-26245b92ee53" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
+    <filter-actions connection-id="900217a9-a7db-4c4f-b289-26245b92ee53" dataset="public.dealers" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="900217a9-a7db-4c4f-b289-26245b92ee53" dataset="public.user1" active-filter-id="" />
+    <filter-actions connection-id="900217a9-a7db-4c4f-b289-26245b92ee53" dataset="public.dealer_articles" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="900217a9-a7db-4c4f-b289-26245b92ee53" dataset="public.articles" active-filter-id="EMPTY_FILTER">
       <filter id="0eed9291-a2b5-4bf2-b34f-32025e4ad8e2" name="1000" temporary="false" custom-name="false" type="basic" join-type="AND">
         <condition column="id" operator="in" value="1000" active="true" />
       </filter>
     </filter-actions>
     <filter-actions connection-id="900217a9-a7db-4c4f-b289-26245b92ee53" dataset="public.article_restaurants" active-filter-id="EMPTY_FILTER" />
+    <filter-actions connection-id="900217a9-a7db-4c4f-b289-26245b92ee53" dataset="public.orders" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="900217a9-a7db-4c4f-b289-26245b92ee53" dataset="public.restaurants" active-filter-id="EMPTY_FILTER">
       <filter id="bfedaaf4-9db4-4e93-a609-accbdc913e54" name="Filter" temporary="false" custom-name="false" type="basic" join-type="AND">
         <condition column="id" operator="is null" value="" active="true" />
       </filter>
     </filter-actions>
+    <filter-actions connection-id="900217a9-a7db-4c4f-b289-26245b92ee53" dataset="public.order_goods" active-filter-id="EMPTY_FILTER" />
   </component>
   <component name="DBNavigator.Project.ExecutionManager">
     <retain-sticky-names value="false" />

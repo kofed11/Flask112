@@ -64,7 +64,7 @@ class Articles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)
     article = db.Column(db.String, nullable=True)
-    dealer = db.Column(db.String, db.ForeignKey('dealers.name'), nullable=True)
+    dealer_name = db.Column(db.String, db.ForeignKey('dealers.name'), nullable=True)
     price = db.Column(db.Float, nullable=True)
     type = db.Column(db.String, nullable=True)
     restaurant = db.Column(db.String, nullable=True)
@@ -74,10 +74,6 @@ class Articles(db.Model):
     second_price = db.Column(db.String)
     dealers = db.relationship('Dealers', secondary=dealer_articles, back_populates='articles')
     restaurants = db.relationship('Restaurants', secondary=article_restaurants, back_populates='articles')
-
-    def set_role(self, dealer):
-        self.dealers = [dealer]  # Ограничение на одну роль
-        self.dealer = dealer.name
 
 
 class Restaurants(db.Model):
@@ -100,10 +96,8 @@ class Orders(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('user2.id'), nullable=True)
-    goods = db.relationship('OrderGoods', backref='order', lazy=True, cascade="all, delete-orphan")
+    items = db.relationship('OrderGoods', backref='order', lazy=True, cascade="all, delete-orphan")
     is_sent = db.Column(db.Boolean, default=False)
-    dealer_id = db.Column(db.Integer, db.ForeignKey('dealers.id'), nullable=True)
-    dealer = db.relationship('Dealers', backref='orders')
 
 class OrderGoods(db.Model):
     id = db.Column(db.Integer, primary_key=True)
