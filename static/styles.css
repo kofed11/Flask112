@@ -21,7 +21,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     opacity: 0.95;
     transition: opacity 0.5s ease-in-out;
-    overflow: hidden;      /* Чтобы полоска прогресса не выходила за границы */
+         /* Чтобы полоска прогресса не выходила за границы */
 }
 
 /* Кнопка закрытия (крестик) */
@@ -53,21 +53,20 @@
 
 /* Полоса прогресса */
 .progress-bar {
-    position: absolute;
+    position: static;
     bottom: 0;
     left: 0;
-    height: 4px;
-    background-color: rgba(255, 255, 255, 0.8);
+    height: 10px;
+    background-color: red;
     width: 100%;
     transform-origin: left;
-    animation: progressAnimation 5s linear forwards; /* Анимация для прогресса */
-    color: white;
+    animation: shrink 5s linear forwards; /* Анимация для прогресса */
 }
 
 /* Анимация прогресса */
-@keyframes progressAnimation {
-    from { transform: scaleX(1); }
-    to   { transform: scaleX(0); }
+@keyframes shrink {
+    from { width: 100%; }
+    to   { width: 0%; }
 }
 /* Общие стили */
 body {
@@ -94,7 +93,7 @@ body {
 .nav-logo a {
     font-size: 20px;
     font-weight: bold;
-    color: #ec7e19;
+    color: black;
     text-decoration: none;
 }
 
@@ -105,6 +104,8 @@ body {
     gap: 20px;
     padding: 0;
     margin: 0;
+    border-style; solid;
+    border-color: #ec7e19;
 }
 
 .nav-links li {
@@ -115,17 +116,21 @@ body {
     text-decoration: none;
     color: black;
     padding: 8px 15px;
+    border-style; solid;
     border-radius: 5px;
+    border-color: #ec7e19;
     transition: background 0.3s;
 }
 
 .nav-links a:hover {
-    background: rgba(236, 126, 25, 0.1);
+    background: #ec7e19;
 }
 
 .nav-links .active {
-    background: #ec7e19;
-    color: white;
+    background: #fff;
+    border-style; solid;
+    border-color: black;
+    color: black;
 }
 
 /* Профиль пользователя */
@@ -214,4 +219,41 @@ body {
 .btn-sm {
     padding: 3px 6px;
     font-size: 12px;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.checkbox-label {
+    margin: 5px 0;
+    padding: 8px;
+    background-color: #ec7e19;  /* Цвет выделения */
+    color: white;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-label input {
+    margin-right: 10px;
+}
+
+.btn-add {
+    float: right;
+    width: 350px;
+    font-size: 1.3em;
+    margin-top: 0.5%;
+    padding: 5px;
+    background: #ec7e19;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    transition: background 0.3s;
+}
+
+.btn-add:hover {
+    background: #d96c15;
 }

@@ -5,11 +5,11 @@
 {% block content %}
 
 <div class="container">
-    <a href="{{ url_for('add_good') }}" class="btn-add"><i class="bi bi-plus-square"></i>  Добавить товар</a>
-    <h1>Список заказов</h1>
+    <a href="{{ url_for('create_order') }}" class="btn-add"><i class="bi bi-plus-square"></i>  Создать заказ</a>
+    <h1>Заказы</h1>
 
     {% if orders %}
-        <table class="table">
+        <table class="table table-hover">
             <thead>
                 <tr>
                     <th>№ заказа</th>

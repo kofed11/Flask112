@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<a href="{{ url_for('add_dealer') }}" class="btn-add"><i class="bi bi-plus-square"></i>  Добавить поставщика</a>
-<h1>Поставщики</h1>
   <body>
-    <div class="frame-1">
+    <div class="container">
+        <a href="{{ url_for('add_dealer') }}" class="btn-add"><i class="bi bi-plus-square"></i>  Добавить поставщика</a>
+        <h1>Поставщики</h1>
         <form method="post" action="/show_dealers">
-        <table class="table">
+        <table class="table table-hover">
             <thead>
                 <tr>
                     <th>Наименование</th>
@@ -18,18 +18,14 @@
             <tbody>
             {% for el in dealers %}
             <tr>
-                <td><a href="/edit_dealer/{{ el.id }}">{{ el.name }}</a></td>
+                <td><a href="edit_dealer/{{ el.id }}" class="btn btn-outline-dark">{{ el.name }}</a></td>
                 <td>{{ el.adres }}</td>
                 <td>{{ el.e_mail }}</td>
                 <td>{{ el.phone }}</td>
-                <td>
-                    <input type="checkbox" name="ids" value="{{ el.id }}">
-                </td>
               </tr>
             </tbody>
             {% endfor %}
         </table>
-            <button class="button_delete" type="submit">Delete</button>
         </form>
     </div>
   </body>

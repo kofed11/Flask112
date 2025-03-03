@@ -1,12 +1,13 @@
 
 {% extends "base.html" %}
 {% block content %}
-<a href="{{ url_for('add_restaurant') }}" class="btn-add"><i class="bi bi-plus-square"></i>  Добавить ресторан</a>
-<h1>Все товары</h1>
+
   <body>
-    <div class="frame-1">
+    <div class="container">
+        <a href="{{ url_for('add_restaurant') }}" class="btn-add"><i class="bi bi-plus-square"></i>  Добавить ресторан</a>
+        <h1>Рестораны</h1>
         <form method="get" action="/restaurants">
-        <table class="table">
+        <table class="table table-hover">
             <thead>
                 <tr>
                     <th>Имя пользователя</th>
@@ -17,9 +18,9 @@
             {% for el in restaurants %}
             <tbody>
             <tr>
-                <td>{{ el.name }}</a></td>
+                <td><a href="update_good/{{ el.id }}" class="btn btn-outline-dark">{{ el.name }}</a></td>
                 <td>{{ el.ur_name }}</td>
-                <td>{{ el.role_name }}</td>
+                <td>{{ el.address }}</td>
             </tr>
             </tbody>
             {% endfor %}
