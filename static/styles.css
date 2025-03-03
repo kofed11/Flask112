@@ -69,78 +69,149 @@
     from { transform: scaleX(1); }
     to   { transform: scaleX(0); }
 }
-.sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 200px; /* Ширина navbar */
-            height: 100vh;
-            background-color: #ffffff; /* Цвет фона */
-            padding-top: 20px;
-            border-radius: 5px;
-            border-color: black;
-            z-index: 1000; /* Поверх других элементов */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start; /* Выравнивание кнопок сверху */
-            gap: 20px; /* Отступы между кнопками */
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-            padding-bottom: 20px;
-            transition: left 0.3s ease-in-out;
-        }
+/* Общие стили */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
 
-        .sidebar.hidden{
-        left: -220px;
-        }
+/* Навигационное меню */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 10px 20px;
+    border-bottom: 3px solid #ec7e19;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
 
-        .sidebar a {
-            width: 90%;
-            text-align: center;
-        }
+/* Логотип */
+.nav-logo a {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ec7e19;
+    text-decoration: none;
+}
 
-        .sidebar button {
-            transition-duration: 0.4s;
-            width: 100%;
-            padding: 12px;
-            border-radius: 5px;
-            border-color: black;
-            background-color: #ffffff;
-            color: black;
-            font-size: 16px;
-            cursor: pointer;
-        }
+/* Ссылки */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    padding: 0;
+    margin: 0;
+}
 
-        .sidebar button:hover {
-            background-color: #ec7e19;
-        }
+.nav-links li {
+    display: inline;
+}
 
-        .menu-toggle {
-        position: absolute;
-        left: 210px;
-        top: 20px;
-        background: #ec7e19;
-        color: black;
-        border: none;
-        padding: 10px;
-        font-size: 20px;
-        cursor: pointer;
-        border-radius: 5px;
-        z-index: 1100;
-        transition: left 0.3s ease-in-out;
-        }
+.nav-links a {
+    text-decoration: none;
+    color: black;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
 
-        .sidebar.hidden + menu.toggle {
-        left: 10px
-        }
+.nav-links a:hover {
+    background: rgba(236, 126, 25, 0.1);
+}
 
-        /* Добавляем отступ для контента, чтобы он не перекрывался navbar */
-        .content {
-            margin-left: 240px; /* Отступ слева, чтобы контент не налезал на navbar */
-            padding: 20px;
-            transition: margin-left 0.3s ease-in-out;
-        }
+.nav-links .active {
+    background: #ec7e19;
+    color: white;
+}
 
-        .sidebar.hidden ~ .content {
-        margin-left: 40px;
-        }
+/* Профиль пользователя */
+.nav-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-profile span {
+    font-weight: bold;
+}
+
+.btn-logout, .btn-login {
+    padding: 5px 10px;
+    background: #ec7e19;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.btn-logout:hover, .btn-login:hover {
+    background: #d96c15;
+}
+
+/* Контент с отступом от фиксированного меню */
+.content {
+    margin-top: 60px;
+    padding: 20px;
+}
+.order-list {
+    list-style: none;
+    padding: 0;
+}
+
+.order-item {
+    background: white;
+    border: 1px solid #ec7e19;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Информация о заказе */
+.order-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Общая сумма */
+.order-total {
+    font-weight: bold;
+    color: #ec7e19;
+}
+
+/* Кнопка и статус справа */
+.order-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.order-status {
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.order-status.sent {
+    background: #28a745;
+    color: white;
+}
+
+.order-status.pending {
+    background: #ffc107;
+    color: black;
+}
+
+/* Кнопка "Просмотр" (меньше, справа) */
+.btn-sm {
+    padding: 3px 6px;
+    font-size: 12px;
+}

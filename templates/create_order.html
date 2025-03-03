@@ -6,29 +6,33 @@
 <div class="container">
     <h2>Выберите товары для заказа</h2>
     <form method="POST" action="{{ url_for('create_order') }}">
+<p><strong>Общая сумма заказа: <span id="totalAmount">0</span> руб.</strong></p>
+    <label for="dealerFilter">Фильтр по поставщику:</label>
+    <input type="text" id="dealerFilter" class="form-control" onkeyup="filterArticles()">
+
     <table class="table">
         <thead>
             <tr>
                 <th>Выбрать</th>
-                <th>Название товара</th>
-                <th>Единица измерения</th>
+                <th>Название</th>
+                <th>Единица</th>
                 <th>Кратность</th>
                 <th>Цена</th>
+                <th>Поставщик</th>
                 <th>Количество</th>
             </tr>
         </thead>
         <tbody>
             {% for article in articles %}
-            <tr>
-                <td>
-                    <input type="checkbox" name="selected_articles" value="{{ article.id }}">
-                </td>
+            <tr class="article-row" data-dealer="{{ article.dealer_name }}">
+                <td><input type="checkbox" name="selected_articles" value="{{ article.id }}" onchange="updateTotal()"></td>
                 <td>{{ article.name }}</td>
                 <td>{{ article.unit }}</td>
                 <td>{{ article.multiplicity }}</td>
                 <td>{{ article.price }} руб.</td>
+                <td>{{ article.dealer_name }}</td>
                 <td>
-                    <input type="number" name="quantity_{{ article.id }}" min="{{ article.multiplicity }}" step="{{ article.multiplicity }}" value="{{ article.multiplicity }}">
+                    <input type="number" name="quantity_{{ article.id }}" min="{{ article.multiplicity }}" step="{{ article.multiplicity }}" value="{{ article.multiplicity }}" onchange="updateTotal()">
                 </td>
             </tr>
             {% endfor %}
@@ -36,5 +40,30 @@
     </table>
     <button type="submit" class="btn btn-primary">Сформировать заказ</button>
 </form>
+
+<script>
+function updateTotal() {
+    let total = 0;
+    document.querySelectorAll("tbody tr").forEach(row => {
+        let checkbox = row.querySelector("input[type='checkbox']");
+        let quantityInput = row.querySelector("input[type='number']");
+        let price = parseFloat(row.cells[4].textContent);
+
+        if (checkbox.checked) {
+            let quantity = parseInt(quantityInput.value);
+            total += quantity * price;
+        }
+    });
+    document.getElementById("totalAmount").textContent = total;
+}
+
+function filterArticles() {
+    let input = document.getElementById("dealerFilter").value.toLowerCase();
+    document.querySelectorAll(".article-row").forEach(row => {
+        let supplier = row.dataset.supplier.toLowerCase();
+        row.style.display = dealer.includes(input) ? "" : "none";
+    });
+}
+</script>
 </div>
 {% endblock %}

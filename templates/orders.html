@@ -3,14 +3,16 @@
 {% block title %}Список заказов{% endblock %}
 
 {% block content %}
+
 <div class="container">
-    <h2>Список заказов</h2>
+    <a href="{{ url_for('add_good') }}" class="btn-add"><i class="bi bi-plus-square"></i>  Добавить товар</a>
+    <h1>Список заказов</h1>
 
     {% if orders %}
         <table class="table">
             <thead>
                 <tr>
-                    <th>ID заказа</th>
+                    <th>№ заказа</th>
                     <th>Дата создания</th>
                     <th>Создан пользователем</th>
                     <th>Статус</th>
@@ -21,7 +23,7 @@
                 {% for order in orders %}
                 <tr>
                     <td>{{ order.id }}</td>
-                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ order.created_at|format_date }}</td>
                     <td>{{ order.user.username }}</td>
                     <td>
                         {% if order.is_sent %}
@@ -31,7 +33,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{{ url_for('view_order', order_id=order.id) }}" class="btn btn-primary">Просмотр</a>
+                        <a href="{{ url_for('view_order', order_id=order.id) }}" class="btn btn-primary"> Просмотр</a>
                     </td>
                 </tr>
                 {% endfor %}

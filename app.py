@@ -1,9 +1,10 @@
 import psycopg2
 from flask import Flask, render_template, request, flash, redirect, url_for
-from config import Articles, db, User2, Role2, Dealers, Restaurants, Orders, OrderGoods
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from forms import RegistrationForm, RoleForm, AssignRoleForm, AddGoodForm, AddDealerForm, RestaurantsNew
 from flask_migrate import Migrate
+
+from config import Articles, db, User2, Role2, Dealers, Restaurants, Orders, OrderGoods
+from forms import RegistrationForm, RoleForm, AssignRoleForm, AddGoodForm, AddDealerForm, RestaurantsNew
 
 app = Flask(__name__)
 app.secret_key = '1'
@@ -15,6 +16,22 @@ migrate = Migrate(app, db)
 # Flask-Login
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+
+# Устанавливаем русскую локаль для отображения месяцев
+# Словарь с русскими названиями месяцев
+MONTHS_RU = {
+    "January": "Январь", "February": "Февраль", "March": "Март",
+    "April": "Апрель", "May": "Май", "June": "Июнь",
+    "July": "Июль", "August": "Август", "September": "Сентябрь",
+    "October": "Октябрь", "November": "Ноябрь", "December": "Декабрь"
+}
+def format_date(date):
+    english_month = date.strftime("%B")  # Получаем месяц на английском
+    russian_month = MONTHS_RU.get(english_month, english_month)  # Переводим в русский
+    return f"{date.strftime('%d')} {russian_month} {date.strftime('%H:%M')}"  # Формат: 25 Январь 14:30
+
+app.jinja_env.filters['format_date'] = format_date
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -43,8 +60,10 @@ def role_required(role_name):
                 flash('Доступ запрещён.', 'error')
                 return redirect(url_for('dashboard'))
             return f(*args, **kwargs)
+
         wrapper.__name__ = f.__name__
         return wrapper
+
     return decorator
 
 # Регистрация пользователя с ролью "user" по умолчанию
@@ -175,7 +194,6 @@ def add_restaurant():
         return redirect(url_for("add_restaurant"))
     return render_template("addrestaurant.html", form=form)
 
-
 @app.route("/add_good", methods=["GET", "POST"])
 def add_good():
     form = AddGoodForm()
@@ -259,6 +277,11 @@ def delete_dealer():
     dealers = Dealers.query.order_by(Dealers.id).all()
     return render_template('all_dealers.html', dealers=dealers)
 
+@app.route('/restaurants')
+def restaurants():
+    restaurants = Restaurants.query.order_by(Restaurants.id).all()
+    return render_template('restaurants.html', restaurants=restaurants)
+
 @app.route('/update_good/<int:id>')  # Переход к конкретному товару
 def update_good(id):
     article = Articles.query.get_or_404(id)
@@ -285,7 +308,8 @@ def update_goods(id):
             article.name = article_data.get('name', article.name)
             article.dealer_name = article_data.get('dealer_name', article.dealer_name)
             article.type = article_data.get('type', article.type)
-            article.price = float(article_data.get('price', article.price)) if article_data.get('price') else article.price
+            article.price = float(article_data.get('price', article.price)) if article_data.get(
+                'price') else article.price
             article.multiplicity = article_data.get('multiplicity', article.multiplicity)
             article.unit = article_data.get('unit', article.unit)
             article.second_dealer = article_data.get('second_dealer', article.second_dealer)
@@ -310,7 +334,8 @@ def edit_dealer(dealer_id):
         try:
             with db.session.begin_nested():  # Используем вложенную транзакцию
                 # 1️⃣ Сначала обновляем dealerName в articles
-                db.session.execute("UPDATE articles SET dealer = :new_name WHERE dealer = :old_name", {"new_name": new_name, "old_name": old_name})
+                db.session.execute("UPDATE articles SET dealer = :new_name WHERE dealer = :old_name",
+                                   {"new_name": new_name, "old_name": old_name})
                 # 2️⃣ Теперь обновляем имя в таблице dealers
                 dealer.name = new_name
                 dealer.adres = form.adres.data
@@ -390,6 +415,16 @@ def orders():
     all_orders = Orders.query.order_by(Orders.created_at.desc()).all()
     print(f"DEBUG: Найдено заказов: {len(all_orders)}")  # Проверяем в консоли
     return render_template('orders.html', orders=all_orders)
+
+@app.route('/home')
+@login_required
+def home():
+    recent_orders = Orders.query.order_by(Orders.created_at.desc()).limit(5).all()
+    # Добавляем сумму заказа и форматируем дату вручную
+    for order in recent_orders:
+        order.total_price = sum(item.quantity * item.article.price for item in order.items)
+        order.formatted_date = format_date(order.created_at)
+    return render_template("home.html", orders=recent_orders)
 
 if __name__ == "__main__":
     app.run(debug=True)

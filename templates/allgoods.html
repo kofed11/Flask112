@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
+<a href="{{ url_for('add_good') }}" class="btn-add"><i class="bi bi-plus-square"></i>  Добавить товар</a>
 <h1>Все товары</h1>
-    <a href="/add_good"><button class="button_add_goods">Добавить article</button></a>
   <body>
     <div class="frame-1">
         <form method="post" action="/show_goods">
-        <table class="table">
+        <table class="table table-hover">
             <thead>
                 <tr>
+                    <th> </th>
                     <th>Наименование</th>
                     <th>Price</th>
                     <th>Type</th>
@@ -20,7 +21,8 @@
             <tbody>
             {% for el in articles %}
             <tr>
-                <td><a href="/update_good/{{ el.id }}">{{ el.name }}</a></td>
+                <td><a href="update_good/{{ el.id }}" class="btn btn-outline-dark">{{ el.name }}</a></td>
+                <td>{{ el.name }}</td>
                 <td>{{ el.price }}</td>
                 <td>{{ el.type }}</td>
                 <td>{{ el.dealer_name }}</td>

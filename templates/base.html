@@ -9,83 +9,51 @@
     <link rel="stylesheet" href="/static/table.css">
     <link rel="stylesheet" href="/static/article.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='addgoods.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href=
+"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
     <!-- Подключение Inputmask -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.7/jquery.inputmask.min.js"></script>
+    <style>
+    .custom-btn {
+            background-color: #ec7e19;
+            color: #fff;
+        }
+        .custom-btn: hover {
+                background: #d96c15;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </head>
 
 <body>
-    <!-- Navbar слева -->
-    <div class="sidebar" id="sidebar">
 
-        <a href="/show_dealers"><button class="button">Поставщики</button></a>
-        <a href="/show_goods"><button class="button">Товары</button></a>
-        <a href="/dashboard"><button class="button">Панель админа</button></a>
-        <a href="/add_restaurant"><button class="button">Добавить Ресторан</button></a>
-        <a href="/create_order"><button class="button">Create order</button></a>
-        <a href="/orders"><button class="button">Orders</button></a>
+    <!-- Навигационное меню -->
+<nav class="navbar">
+    <div class="nav-logo">
+        <a href="{{ url_for('home') }}">Моё приложение</a>
     </div>
-
-<!-- Кнопка для скрытия/открытия меню -->
-    <button class="menu-toggle" id="menuToggle">☰</button>
-
-    <!-- Основной контент -->
-    <div class="content">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div id="flash-messages" class="flash-messages">
-                    {% for category, message in messages %}
-                        <div class="alert {{ category }}">
-                            <span class="close-btn">&times;</span>
-                            <div class="message-content">{{ message }}</div>
-                            <div class="progress-bar"></div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
-
-        {% block content %}
-        {% endblock %}
+    <ul class="nav-links">
+        <li><a href="{{ url_for('orders') }}" class="{% if request.endpoint == 'orders' %}active{% endif %}">Заказы</a></li>
+        <li><a href="{{ url_for('show_dealers') }}" class="{% if request.endpoint == 'show_dealers' %}active{% endif %}">Поставщики</a></li>
+        <li><a href="{{ url_for('show_goods') }}" class="{% if request.endpoint == 'show_goods' %}active{% endif %}">Товары</a></li>
+        <li><a href="{{ url_for('restaurants') }}" class="{% if request.endpoint == 'restaurants' %}active{% endif %}">Рестораны</a></li>
+        <li><a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Панель админа</a></li>
+    </ul>
+    <div class="nav-profile">
+        {% if current_user.is_authenticated %}
+            <span>{{ current_user.username }}</span>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Выйти</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="btn-login">Войти</a>
+        {% endif %}
     </div>
+</nav>
 
-   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const sidebar = document.getElementById('sidebar');
-        const menuToggle = document.getElementById('menuToggle');
-
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('hidden');
-
-            // Проверяем, скрыто ли меню, и меняем положение кнопки
-            if (sidebar.classList.contains('hidden')) {
-                menuToggle.style.left = "10px"; // Сдвигаем кнопку влево
-            } else {
-                menuToggle.style.left = "210px"; // Возвращаем кнопку обратно
-            }
-        });
-
-        const alerts = document.querySelectorAll('.alert');
-
-        alerts.forEach(alert => {
-            const closeBtn = alert.querySelector('.close-btn');
-            const progressBar = alert.querySelector('.progress-bar');
-
-            const autoHideTimer = setTimeout(() => {
-                hideAlert(alert);
-            }, 5000);
-
-            closeBtn.addEventListener('click', () => {
-                clearTimeout(autoHideTimer);
-                hideAlert(alert);
-            });
-
-            function hideAlert(element) {
-                element.classList.add('hide');
-                setTimeout(() => element.remove(), 500);
-            }
-        });
-    });
-</script>
+<!-- Контент страницы -->
+<div class="content">
+    {% block content %}{% endblock %}
+</div>
 </body>
 </html>
