@@ -194,6 +194,7 @@ def add_restaurant():
         return redirect(url_for("add_restaurant"))
     return render_template("addrestaurant.html", form=form)
 
+
 @app.route("/add_good", methods=["GET", "POST"])
 def add_good():
     form = AddGoodForm()
