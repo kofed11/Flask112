@@ -2,7 +2,7 @@ import psycopg2
 from flask import Flask, render_template, request, flash, redirect, url_for
 from config import Articles, db, User2, Role2, Dealers, Restaurants, Orders, OrderGoods
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from forms import RegistrationForm, RoleForm, AssignRoleForm, AddGoodForm, AddDealerForm, RestaurantsNew, OrderGoodsForm, OrderForm
+from forms import RegistrationForm, RoleForm, AssignRoleForm, AddGoodForm, AddDealerForm, RestaurantsNew
 from flask_migrate import Migrate
 
 app = Flask(__name__)
@@ -12,33 +12,27 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 migrate = Migrate(app, db)
-
 # Flask-Login
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
 
 @login_manager.user_loader
 def load_user(user_id):
     return User2.query.get(int(user_id))
 
-
 @app.before_request
 def create_tables():
     db.create_all()
-
     # Проверка, существует ли роль "user"
     if not Role2.query.filter_by(name='user').first():
         user_role = Role2(name='user', description='Обычный пользователь')
         db.session.add(user_role)
         db.session.commit()
-
     # Проверка, существует ли роль "admin"
     if not Role2.query.filter_by(name='admin').first():
         admin_role = Role2(name='admin', description='Администратор')
         db.session.add(admin_role)
         db.session.commit()
-
 
 # Декоратор для проверки ролей
 def role_required(role_name):
@@ -49,12 +43,9 @@ def role_required(role_name):
                 flash('Доступ запрещён.', 'error')
                 return redirect(url_for('dashboard'))
             return f(*args, **kwargs)
-
         wrapper.__name__ = f.__name__
         return wrapper
-
     return decorator
-
 
 # Регистрация пользователя с ролью "user" по умолчанию
 @app.route('/register', methods=['GET', 'POST'])
@@ -64,31 +55,23 @@ def register():
         username = form.username.data
         email = form.email.data
         password = form.password.data
-
         if User2.query.filter_by(username=username).first():
             flash('Пользователь с таким именем уже существует.', 'error')
             return redirect(url_for('register'))
-
         if User2.query.filter_by(email=email).first():
             flash('Этот адрес электронной почты уже зарегистрирован.', 'error')
             return redirect(url_for('register'))
-
         new_user = User2(username=username, email=email)
         new_user.set_password(password)
-
         # Назначение роли "user" по умолчанию
         user_role = Role2.query.filter_by(name='admin').first()
         if user_role:
             new_user.set_role(user_role)  # Ограничение на одну роль и обновление primary_role_name
-
         db.session.add(new_user)
         db.session.commit()
-
         flash('Регистрация успешна!', 'success')
         return redirect(url_for('login'))
-
     return render_template('register.html', form=form)
-
 
 # Вход
 @app.route('/login', methods=['GET', 'POST'])
@@ -104,13 +87,11 @@ def login():
         flash('Неверные данные.', 'error')
     return render_template('login.html')
 
-
 # Панель управления
 @app.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html')
-
 
 # Управление ролями (только для админов)
 @app.route('/roles', methods=['GET', 'POST'])
@@ -126,7 +107,6 @@ def manage_roles():
         return redirect(url_for('manage_roles'))
     return render_template('manage_roles.html', form=form, roles=roles)
 
-
 @app.route('/show_users')  # Список пользователей
 @role_required('admin')
 def show_users():
@@ -134,36 +114,27 @@ def show_users():
     role2 = Role2.query.order_by(Role2.id).all()
     return render_template('all_users.html', user2=user2, role2=role2)
 
-
 # Назначение ролей пользователям (только для админов)
 @app.route('/assign_role/<int:user_id>', methods=['GET', 'POST'])
 @role_required('admin')
 def assign_role(user_id):
     user = User2.query.get_or_404(user_id)
     form = AssignRoleForm()
-
     # Подгружаем список ролей для выбора
     form.roles.choices = [(role.id, role.name) for role in Role2.query.all()]
-
     if form.validate_on_submit():
         selected_role = Role2.query.get(form.roles.data)  # Выбираем одну роль
-
         if selected_role:
             user.role_id = selected_role.id  # Обновляем role_id
             user.role_name = selected_role.name  # Обновляем имя роли
-
             db.session.commit()  # Сохраняем изменения в БД
             flash("Роль пользователя успешно обновлена!", "success")
         else:
             flash("Ошибка: выбранная роль не найдена!", "error")
-
         return redirect(url_for('show_users'))
-
     # Устанавливаем текущее значение роли в форме
     form.roles.data = user.role_id
-
     return render_template('assign_role.html', form=form, user=user)
-
 
 # Выход
 @app.route('/logout')
@@ -172,7 +143,6 @@ def logout():
     logout_user()
     flash('Вы вышли из системы.', 'success')
     return redirect(url_for('login'))
-
 
 @app.route("/add_dealer", methods=["GET", "POST"])
 def add_dealer():
@@ -184,14 +154,11 @@ def add_dealer():
             e_mail=form.e_mail.data,
             phone=form.phone.data,
         )
-
         db.session.add(new_dealer)
         db.session.commit()
         flash("Dealer успешно добавлен!", "success")
         return redirect(url_for("add_dealer"))
-
     return render_template("adddealer.html", form=form)
-
 
 @app.route("/add_restaurant", methods=["GET", "POST"])
 def add_restaurant():
@@ -202,12 +169,10 @@ def add_restaurant():
             ur_name=form.ur_name.data,
             address=form.address.data,
         )
-
         db.session.add(new_restaurant)
         db.session.commit()
         flash("restaurant успешно добавлен!", "success")
         return redirect(url_for("add_restaurant"))
-
     return render_template("addrestaurant.html", form=form)
 
 
@@ -217,7 +182,6 @@ def add_good():
     form.dealer.choices = [(dealer.id, dealer.name) for dealer in Dealers.query.all()]
     if request.method == "POST":
         print("Form data:", form.data)
-
     if form.validate_on_submit():
         selected_restaurant_ids = request.form.getlist('restaurants', type=int)
         print("Selected restaurants:", selected_restaurant_ids)  # Для отладки
@@ -234,23 +198,20 @@ def add_good():
             second_dealer=form.second_dealer.data,
             second_price=form.second_price.data,
         )
-
         db.session.add(new_good)
         db.session.commit()
         flash("Товар успешно добавлен!", "success")
         return redirect(url_for("add_good"))
-
     return render_template("addgoods.html", form=form, Restaurants=Restaurants)
-
 
 @app.route('/show_goods')  # Список товаров
 def show_goods():
     articles = Articles.query.order_by(Articles.id).all()
     return render_template('allgoods.html', articles=articles)
 
-
 @app.route('/show_goods', methods=["POST"])  # Удаление товаров из списка
 def delete_good():
+    articles = Articles.query.order_by(Articles.id).all()
     conn = psycopg2.connect(
         host="localhost",
         database="flask",
@@ -258,33 +219,25 @@ def delete_good():
         password="postgres"
     )
     ids = request.form.getlist('ids')  # Получаем список ID
-
     if ids:
         ids_tuple = tuple(map(int, ids))  # Преобразуем в tuple
-
         if len(ids_tuple) == 1:  # Если только 1 элемент, добавляем запятую
             ids_tuple = (ids_tuple[0],)
-
         with conn:
             with conn.cursor() as curs:
                 # Удаляем сначала зависимости, потом сам товар
                 curs.execute("DELETE FROM article_restaurants WHERE article_id IN %s", (ids_tuple,))
                 curs.execute("DELETE FROM dealer_articles WHERE article_id IN %s", (ids_tuple,))
+                curs.execute("DELETE FROM order_goods WHERE article_id IN %s", (ids_tuple,))
                 curs.execute("DELETE FROM articles WHERE id IN %s", (ids_tuple,))
-
         flash(f"Удалено {len(ids)} записей!", "success")
-
     conn.close()
-
-    articles = Articles.query.order_by(Articles.id).all()
     return render_template('allgoods.html', articles=articles)
-
 
 @app.route('/show_dealers')  # Список товаров
 def show_dealers():
     dealers = Dealers.query.order_by(Dealers.id).all()
     return render_template('all_dealers.html', dealers=dealers)
-
 
 @app.route('/show_dealers', methods=["POST"])  # Удаление dealer из списка
 def delete_dealer():
@@ -306,7 +259,6 @@ def delete_dealer():
     dealers = Dealers.query.order_by(Dealers.id).all()
     return render_template('all_dealers.html', dealers=dealers)
 
-
 @app.route('/update_good/<int:id>')  # Переход к конкретному товару
 def update_good(id):
     article = Articles.query.get_or_404(id)
@@ -316,7 +268,6 @@ def update_good(id):
     associated_restaurant_ids = [r.id for r in article.restaurants]
     return render_template('article.html', article=article, all_restaurants=all_restaurants,
                            associated_restaurant_ids=associated_restaurant_ids)
-
 
 @app.route('/update_good/<int:id>', methods=["POST"])  # Изменение в товаре
 def update_goods(id):
@@ -339,18 +290,15 @@ def update_goods(id):
             article.unit = article_data.get('unit', article.unit)
             article.second_dealer = article_data.get('second_dealer', article.second_dealer)
             article.second_price = article_data.get('second_price', article.second_price)
-
             # Обработка ресторанов
             selected_restaurant_ids = request.form.getlist('restaurants', type=int)
             selected_restaurants = Restaurants.query.filter(Restaurants.id.in_(selected_restaurant_ids)).all()
             article.restaurants = selected_restaurants  # Обновляем список ресторанов
-
             db.session.commit()  # Сохраняем изменения в БД
             flash("Товар успешно обновлён!", "success")
             return redirect(url_for("show_goods"))
     conn.close()
     return render_template('article.html', article=article)
-
 
 @app.route('/edit_dealer/<int:dealer_id>', methods=["GET", "POST"])  # Изменение в dealer
 def edit_dealer(dealer_id):
@@ -359,94 +307,72 @@ def edit_dealer(dealer_id):
     if form.validate_on_submit():
         old_name = dealer.name  # Старое имя дилера
         new_name = form.name.data  # Новое имя
-
         try:
             with db.session.begin_nested():  # Используем вложенную транзакцию
                 # 1️⃣ Сначала обновляем dealerName в articles
                 db.session.execute("UPDATE articles SET dealer = :new_name WHERE dealer = :old_name", {"new_name": new_name, "old_name": old_name})
-
                 # 2️⃣ Теперь обновляем имя в таблице dealers
                 dealer.name = new_name
                 dealer.adres = form.adres.data
                 dealer.e_mail = form.e_mail.data
                 dealer.phone = form.phone.data
-
             db.session.commit()  # Фиксируем транзакцию
             flash("Dealer edited successfully", "success")
             return redirect(url_for("show_dealers"))
-
         except Exception as e:
             db.session.rollback()
             flash(f"Ошибка: {e}", "error")
-
     return render_template("edit_dealer.html", form=form, dealer=dealer)
-
 
 @app.route('/create_order', methods=['GET', 'POST'])
 @login_required
 def create_order():
     articles = Articles.query.all()
-
     if request.method == 'POST':
         selected_article_ids = request.form.getlist('selected_articles')
-
         if not selected_article_ids:
             flash("Вы не выбрали ни одного товара!", "warning")
             return redirect(url_for('create_order'))
-
         new_order = Orders(user_id=current_user.id)
         db.session.add(new_order)
         db.session.commit()
-
         for article_id in selected_article_ids:
             article = Articles.query.get(article_id)
             quantity = request.form.get(f'quantity_{article_id}', type=int)
-
             # Проверяем, что количество не меньше кратности
             if quantity is None or quantity < article.multiplicity or quantity % article.multiplicity != 0:
                 flash(f"Ошибка: количество товара {article.name} должно быть кратно {article.multiplicity}!", "danger")
                 db.session.rollback()
                 return redirect(url_for('create_order'))
-
             order_good = OrderGoods(order_id=new_order.id, article_id=article.id, quantity=quantity)
             db.session.add(order_good)
-
         db.session.commit()
         flash("Заказ успешно создан!", "success")
         return redirect(url_for('orders'))
-
     return render_template("create_order.html", articles=articles)
-
 
 @app.route('/order/<int:order_id>')
 @login_required
 def view_order(order_id):
     order = Orders.query.get_or_404(order_id)
     order_goods = OrderGoods.query.filter_by(order_id=order.id).all()
-
     dealers = {}
-
     for item in order_goods:
         article = Articles.query.get(item.article_id)
-
         if not article:
             flash(f"Ошибка: Артикул с ID {item.article_id} не найден.", "danger")
             continue  # Пропускаем отсутствующие товары
-
         # Получаем дилера по его имени из таблицы Dealers
         dealer = Dealers.query.filter_by(name=article.dealer_name).first()
-
         if not dealer:
             flash(f"Ошибка: Поставщик '{article.dealer_name}' не найден в базе.", "danger")
             continue  # Пропускаем товары без корректного поставщика
-
         if dealer.name not in dealers:
             dealers[dealer.name] = {
                 "dealer_name": dealer.name,
                 "goods": [],
                 "total": 0
             }
-
         total_price = item.quantity * article.price
         dealers[dealer.name]["goods"].append({
             "article_name": article.name,
@@ -456,19 +382,14 @@ def view_order(order_id):
             "total_price": total_price
         })
         dealers[dealer.name]["total"] += total_price
-
     return render_template("view_order.html", order=order, dealers=dealers)
-
 
 @app.route('/orders')
 @login_required
 def orders():
     all_orders = Orders.query.order_by(Orders.created_at.desc()).all()
-
     print(f"DEBUG: Найдено заказов: {len(all_orders)}")  # Проверяем в консоли
-
     return render_template('orders.html', orders=all_orders)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
