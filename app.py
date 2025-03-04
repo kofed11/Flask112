@@ -133,6 +133,10 @@ def show_users():
     role2 = Role2.query.order_by(Role2.id).all()
     return render_template('all_users.html', user2=user2, role2=role2)
 
+@app.route('/index')
+def index():
+    return render_template('index.html')
+
 # Назначение ролей пользователям (только для админов)
 @app.route('/assign_role/<int:user_id>', methods=['GET', 'POST'])
 @role_required('admin')
