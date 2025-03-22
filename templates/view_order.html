@@ -1,23 +1,111 @@
 {% extends "base.html" %}
 
-{% block title %}Просмотр заказа{% endblock %}
+{% block title %}Редактирование заказа{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2>Заказ №{{ order.id }}</h2>
+<div class="container mt-4">
+    <h2>Редактирование заказа №{{ order.id }}</h2>
 
-    {% for dealer in dealers.values() %}
-        <h4>Поставщик: {{ dealer.dealer_name }}</h4>
-        <ul>
-            {% for good in dealer.goods %}
-                <li>
-                    {{ good.article_name }} — {{ good.quantity }} {{ good.unit }}
-                    (Кратность: {{ good.multiplicity }}) —
-                    {{ good.total_price }} руб.
-                </li>
-            {% endfor %}
-        </ul>
-        <p><strong>Итого: {{ dealer.total }} руб.</strong></p>
-    {% endfor %}
+    <h4 class="mt-4">Общая сумма заказа: <span id="order-total">0</span> руб.</h4>
+
+    <form method="post" action="{{ url_for('view_order', order_id=order.id) }}">
+        {% for dealer in dealers.values() %}
+            <h4 class="mt-4 dealer-name" data-dealer="{{ dealer.dealer_name }}">
+                Поставщик: {{ dealer.dealer_name }}
+            </h4>
+
+            <table class="table table-bordered dealer-table" data-dealer="{{ dealer.dealer_name }}">
+                <thead class="table-light">
+                    <tr>
+                        <th>Товар</th>
+                        <th>Количество</th>
+                        <th>Цена (₽)</th>
+                        <th>Сумма (₽)</th>
+                        <th>Поставщик</th>
+                        <th>Удалить</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for good in dealer.goods %}
+                    <tr data-base-price="{{ good.price }}" data-second-price="{{ good.second_price }}">
+  <td>{{ good.article_name }}</td>
+  <td>
+    <input type="number" name="quantity_{{ good.id }}"
+           value="{{ good.quantity }}"
+           min="{{ good.multiplicity }}"
+           step="{{ good.multiplicity }}"
+           class="form-control quantity-input"
+           data-price="{{ good.price }}">>
+  </td>
+  <td class="price-cell">{{ good.price }}</td>
+  <td class="item-total">0</td>
+  <td>
+    <select name="dealer_{{ good.id }}" class="form-select dealer-select">
+      <option value="{{ dealer.dealer_name }}">{{ dealer.dealer_name }}</option>
+      {% if good.second_dealer %}
+        <option value="{{ good.second_dealer }}">{{ good.second_dealer }}</option>
+      {% endif %}
+    </select>
+  </td>
+  <td class="text-center">
+    <input type="checkbox" name="delete_{{ good.id }}" class="form-check-input">
+  </td>
+</tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <p><strong>Итого по {{ dealer.dealer_name }}: <span class="dealer-total">0</span> руб.</strong></p>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary mt-3">Сохранить изменения</button>
+    </form>
 </div>
+
+<script>
+function calculateTotals() {
+  let overallTotal = 0;
+  document.querySelectorAll(".dealer-table").forEach(table => {
+    let dealerTotal = 0;
+    table.querySelectorAll("tbody tr").forEach(row => {
+      const qtyInput = row.querySelector(".quantity-input");
+      const priceCell = row.querySelector(".price-cell");
+      const price = parseFloat(priceCell.textContent);
+      const qty = parseInt(qtyInput.value) || 0;
+      const itemSum = qty * price;
+      dealerTotal += itemSum;
+      row.querySelector(".item-total").textContent = itemSum.toFixed(2);
+    });
+    table.nextElementSibling.querySelector(".dealer-total").textContent = dealerTotal.toFixed(2);
+    overallTotal += dealerTotal;
+  });
+  document.getElementById("order-total").textContent = overallTotal.toFixed(2);
+}
+
+// Смена поставщика → обновить цену
+document.querySelectorAll(".dealer-select").forEach(select => {
+  select.addEventListener("change", () => {
+    const row = select.closest("tr");
+    const basePrice = parseFloat(row.dataset.basePrice);
+    const secondPrice = parseFloat(row.dataset.secondPrice);
+    const selectedDealer = select.value;
+    const baseDealer = row.closest(".dealer-table").dataset.dealer;
+
+    const priceCell = row.querySelector(".price-cell");
+    if (selectedDealer === baseDealer) {
+      priceCell.textContent = basePrice.toFixed(2);
+    } else {
+      priceCell.textContent = secondPrice.toFixed(2);
+    }
+    calculateTotals();
+  });
+});
+
+// Изменение количества
+document.querySelectorAll(".quantity-input").forEach(input => {
+  input.addEventListener("input", calculateTotals);
+});
+
+calculateTotals();
+</script>
 {% endblock %}

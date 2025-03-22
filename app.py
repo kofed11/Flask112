@@ -133,10 +133,6 @@ def show_users():
     role2 = Role2.query.order_by(Role2.id).all()
     return render_template('all_users.html', user2=user2, role2=role2)
 
-@app.route('/index')
-def index():
-    return render_template('index.html')
-
 # Назначение ролей пользователям (только для админов)
 @app.route('/assign_role/<int:user_id>', methods=['GET', 'POST'])
 @role_required('admin')
@@ -202,6 +198,7 @@ def add_restaurant():
 def add_good():
     form = AddGoodForm()
     form.dealer.choices = [(dealer.id, dealer.name) for dealer in Dealers.query.all()]
+    form.second_dealer.choices = [(dealer.id, dealer.name) for dealer in Dealers.query.all()]
     if request.method == "POST":
         print("Form data:", form.data)
     if form.validate_on_submit():
@@ -217,7 +214,7 @@ def add_good():
             multiplicity=form.multiplicity.data,
             unit=form.unit.data,
             restaurants=selected_restaurants,
-            second_dealer=form.second_dealer.data,
+            second_dealer=Dealers.query.get(form.second_dealer.data).name,
             second_price=form.second_price.data,
         )
         db.session.add(new_good)
@@ -380,38 +377,80 @@ def create_order():
         return redirect(url_for('orders'))
     return render_template("create_order.html", articles=articles)
 
-@app.route('/order/<int:order_id>')
-@login_required
+def get_dealers_for_order(order):
+    dealers = {}
+    for item in order.items:
+        article = item.article
+        dealer_name = article.dealer_name
+
+        if dealer_name not in dealers:
+            dealers[dealer_name] = {
+                'dealer_name': dealer_name,
+                'goods': [],
+                'total': 0
+            }
+
+        total_price = item.quantity * article.price
+        dealers[dealer_name]['goods'].append({
+            'id': item.id,
+            'article_name': article.name,
+            'quantity': item.quantity,
+            'price': article.price,
+            'unit': article.unit,
+            'multiplicity': article.multiplicity or 1,  # КРАТНОСТЬ передается
+            'total_price': total_price,
+            'second_dealer': article.second_dealer,
+            'second_price': article.second_price or article.price
+        })
+        dealers[dealer_name]['total'] += total_price
+
+    return dealers
+
+@app.route('/order/<int:order_id>', methods=['GET', 'POST'])
 def view_order(order_id):
     order = Orders.query.get_or_404(order_id)
-    order_goods = OrderGoods.query.filter_by(order_id=order.id).all()
-    dealers = {}
-    for item in order_goods:
-        article = Articles.query.get(item.article_id)
-        if not article:
-            flash(f"Ошибка: Артикул с ID {item.article_id} не найден.", "danger")
-            continue  # Пропускаем отсутствующие товары
-        # Получаем дилера по его имени из таблицы Dealers
-        dealer = Dealers.query.filter_by(name=article.dealer_name).first()
-        if not dealer:
-            flash(f"Ошибка: Поставщик '{article.dealer_name}' не найден в базе.", "danger")
-            continue  # Пропускаем товары без корректного поставщика
-        if dealer.name not in dealers:
-            dealers[dealer.name] = {
-                "dealer_name": dealer.name,
-                "goods": [],
-                "total": 0
-            }
-        total_price = item.quantity * article.price
-        dealers[dealer.name]["goods"].append({
-            "article_name": article.name,
-            "quantity": item.quantity,
-            "unit": article.unit,
-            "multiplicity": article.multiplicity,
-            "total_price": total_price
-        })
-        dealers[dealer.name]["total"] += total_price
-    return render_template("view_order.html", order=order, dealers=dealers)
+    dealers = get_dealers_for_order(order)
+
+    if request.method == 'POST':
+        for item in order.items:
+            item_id = item.id
+            qty_key = f'quantity_{item_id}'
+            dealer_key = f'dealer_{item_id}'
+            delete_key = f'delete_{item_id}'
+
+            article = item.article
+            multiplicity = article.multiplicity or 1
+
+            # Проверка на удаление
+            if delete_key in request.form:
+                db.session.delete(item)
+                continue
+
+            # Получаем новое количество, проверяем кратность
+            try:
+                new_qty = int(request.form.get(qty_key, item.quantity))
+                if new_qty % multiplicity != 0:
+                    flash(f"Количество товара '{article.name}' должно быть кратным {multiplicity}.", "error")
+                    return redirect(url_for('view_order', order_id=order_id))
+            except ValueError:
+                flash(f"Некорректное значение количества товара '{article.name}'.", "danger")
+                return redirect(url_for('view_order', order_id=order_id))
+
+            item.quantity = new_qty
+
+            # Проверка и смена поставщика
+            new_dealer = request.form.get(dealer_key, article.dealer_name)
+            if new_dealer in [article.dealer_name, article.second_dealer]:
+                article.dealer_name = new_dealer
+            else:
+                flash(f"Поставщик '{new_dealer}' недоступен для товара '{article.name}'.", "danger")
+                return redirect(url_for('view_order', order_id=order_id))
+
+        db.session.commit()
+        flash("Изменения в заказе сохранены!", "success")
+        return redirect(url_for('orders'))
+
+    return render_template('view_order.html', order=order, dealers=dealers)
 
 @app.route('/orders')
 @login_required
@@ -428,7 +467,7 @@ def home():
     for order in recent_orders:
         order.total_price = sum(item.quantity * item.article.price for item in order.items)
         order.formatted_date = format_date(order.created_at)
-    return render_template("home.html", orders=recent_orders)
+    return render_template("index.html", orders=recent_orders)
 
 if __name__ == "__main__":
     app.run(debug=True)

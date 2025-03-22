@@ -105,8 +105,7 @@ class OrderGoods(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     article = db.relationship('Articles')
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'), nullable=True)
-
-
+    article_multiplicity = db.Column(db.Integer, nullable=True)
 
 with app.app_context():
     db.create_all()

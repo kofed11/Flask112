@@ -34,7 +34,7 @@ class AddGoodForm(FlaskForm):
     price = FloatField("Цена", validators=[DataRequired()])
     multiplicity = IntegerField("Кратность", validators=[DataRequired()])
     unit = StringField("Единица измерения", validators=[DataRequired()])
-    second_dealer = StringField("Доп. поставщик", validators=[Optional()])
+    second_dealer = SelectField("Доп. поставщик", coerce=int, validators=[Optional()])
     second_price = FloatField("Доп. цена", validators=[Optional()])
     submit = SubmitField("Добавить товар")
 
