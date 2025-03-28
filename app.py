@@ -194,33 +194,38 @@ def add_restaurant():
         return redirect(url_for("add_restaurant"))
     return render_template("addrestaurant.html", form=form)
 
+
 @app.route("/add_good", methods=["GET", "POST"])
 def add_good():
     form = AddGoodForm()
     form.dealer.choices = [(dealer.id, dealer.name) for dealer in Dealers.query.all()]
     form.second_dealer.choices = [(dealer.id, dealer.name) for dealer in Dealers.query.all()]
-    if request.method == "POST":
-        print("Form data:", form.data)
+
     if form.validate_on_submit():
         selected_restaurant_ids = request.form.getlist('restaurants', type=int)
-        print("Selected restaurants:", selected_restaurant_ids)  # Для отладки
         selected_restaurants = Restaurants.query.filter(Restaurants.id.in_(selected_restaurant_ids)).all()
+
+        # Получаем объекты дилеров
+        dealer_obj = Dealers.query.get(form.dealer.data)
+        second_dealer_obj = Dealers.query.get(form.second_dealer.data) if form.second_dealer.data else None
+
         new_good = Articles(
             article=form.article.data,
             name=form.name.data,
-            dealer_name=Dealers.query.get(form.dealer.data).name,  # Сохраняем имя дилера
-            type=form.type.data,
+            dealer=dealer_obj,  # Передаем объект дилера
             price=form.price.data,
+            type=form.type.data,
             multiplicity=form.multiplicity.data,
             unit=form.unit.data,
             restaurants=selected_restaurants,
-            second_dealer=Dealers.query.get(form.second_dealer.data).name,
+            second_dealer=second_dealer_obj,  # Передаем объект второго дилера
             second_price=form.second_price.data,
         )
         db.session.add(new_good)
         db.session.commit()
         flash("Товар успешно добавлен!", "success")
         return redirect(url_for("add_good"))
+
     return render_template("addgoods.html", form=form, Restaurants=Restaurants)
 
 @app.route('/show_goods')  # Список товаров
@@ -377,39 +382,18 @@ def create_order():
         return redirect(url_for('orders'))
     return render_template("create_order.html", articles=articles)
 
-def get_dealers_for_order(order):
-    dealers = {}
-    for item in order.items:
-        article = item.article
-        dealer_name = article.dealer_name
-
-        if dealer_name not in dealers:
-            dealers[dealer_name] = {
-                'dealer_name': dealer_name,
-                'goods': [],
-                'total': 0
-            }
-
-        total_price = item.quantity * article.price
-        dealers[dealer_name]['goods'].append({
-            'id': item.id,
-            'article_name': article.name,
-            'quantity': item.quantity,
-            'price': article.price,
-            'unit': article.unit,
-            'multiplicity': article.multiplicity or 1,  # КРАТНОСТЬ передается
-            'total_price': total_price,
-            'second_dealer': article.second_dealer,
-            'second_price': article.second_price or article.price
-        })
-        dealers[dealer_name]['total'] += total_price
-
-    return dealers
-
 @app.route('/order/<int:order_id>', methods=['GET', 'POST'])
 def view_order(order_id):
     order = Orders.query.get_or_404(order_id)
-    dealers = get_dealers_for_order(order)
+
+    # Назначаем dealer объектам, если не назначен
+    for item in order.items:
+        if not item.dealer:
+            if item.dealer_id:
+                item.dealer = Dealers.query.get(item.dealer_id)
+            elif item.article.dealer_id:
+                item.dealer_id = item.article.dealer_id
+                item.dealer = item.article.dealer
 
     if request.method == 'POST':
         for item in order.items:
@@ -426,7 +410,7 @@ def view_order(order_id):
                 db.session.delete(item)
                 continue
 
-            # Получаем новое количество, проверяем кратность
+            # Проверка кратности
             try:
                 new_qty = int(request.form.get(qty_key, item.quantity))
                 if new_qty % multiplicity != 0:
@@ -438,19 +422,21 @@ def view_order(order_id):
 
             item.quantity = new_qty
 
-            # Проверка и смена поставщика
-            new_dealer = request.form.get(dealer_key, article.dealer_name)
-            if new_dealer in [article.dealer_name, article.second_dealer]:
-                article.dealer_name = new_dealer
+            # Получаем нового поставщика по ID
+            new_dealer_id = int(request.form.get(dealer_key, item.dealer_id))
+            allowed_dealers = [article.dealer_id, article.second_dealer_id]
+
+            if new_dealer_id in allowed_dealers:
+                item.dealer_id = new_dealer_id  # Меняем поставщика в позиции заказа
             else:
-                flash(f"Поставщик '{new_dealer}' недоступен для товара '{article.name}'.", "danger")
+                flash(f"Поставщик недоступен для товара '{article.name}'.", "danger")
                 return redirect(url_for('view_order', order_id=order_id))
 
         db.session.commit()
         flash("Изменения в заказе сохранены!", "success")
         return redirect(url_for('orders'))
 
-    return render_template('view_order.html', order=order, dealers=dealers)
+    return render_template('view_order.html', order=order)
 
 @app.route('/orders')
 @login_required

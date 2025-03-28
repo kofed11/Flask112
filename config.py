@@ -64,16 +64,19 @@ class Articles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)
     article = db.Column(db.String, nullable=True)
-    dealer_name = db.Column(db.String, db.ForeignKey('dealers.name'), nullable=True)
+    dealer_id = db.Column(db.Integer, db.ForeignKey('dealers.id'), nullable=True)
     price = db.Column(db.Float, nullable=True)
     type = db.Column(db.String, nullable=True)
     restaurant = db.Column(db.String, nullable=True)
     multiplicity = db.Column(db.Integer, nullable=True)
     unit = db.Column(db.String, nullable=True)
-    second_dealer = db.Column(db.String)
-    second_price = db.Column(db.String)
+    second_dealer_id = db.Column(db.Integer, db.ForeignKey('dealers.id'), nullable=True)
+    second_price = db.Column(db.String, nullable=True)
     dealers = db.relationship('Dealers', secondary=dealer_articles, back_populates='articles')
     restaurants = db.relationship('Restaurants', secondary=article_restaurants, back_populates='articles')
+
+    dealer = db.relationship('Dealers', foreign_keys=[dealer_id])
+    second_dealer = db.relationship('Dealers', foreign_keys=[second_dealer_id])
 
 
 class Restaurants(db.Model):
@@ -105,7 +108,8 @@ class OrderGoods(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     article = db.relationship('Articles')
     article_id = db.Column(db.Integer, db.ForeignKey('articles.id'), nullable=True)
-    article_multiplicity = db.Column(db.Integer, nullable=True)
+    dealer = db.relationship('Dealers')
+    dealer_id = db.Column(db.Integer, db.ForeignKey('dealers.id'), nullable=True)
 
 with app.app_context():
     db.create_all()

@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField, SubmitField, SelectField, FloatF
 from wtforms.fields.choices import SelectMultipleField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, Regexp, NumberRange
 from wtforms_sqlalchemy.fields import QuerySelectMultipleField
-from config import Restaurants, Articles
+from config import Restaurants, Articles, Dealers
 from flask import current_app
 
 class RegistrationForm(FlaskForm):
@@ -38,6 +38,10 @@ class AddGoodForm(FlaskForm):
     second_price = FloatField("Доп. цена", validators=[Optional()])
     submit = SubmitField("Добавить товар")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dealer.choices = [(dealer.id, dealer.name) for dealer in Dealers.query.all()]
+        self.second_dealer.choices = [(dealer.id, dealer.name) for dealer in Dealers.query.all()]
 
 class AddDealerForm(FlaskForm):
     name = StringField("Наименование поставщика", validators=[DataRequired(), Length(max=256)])
